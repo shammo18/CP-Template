@@ -89,67 +89,23 @@ using ordered_set=tree<T,null_type,less<T>,rb_tree_tag,tree_order_statistics_nod
 ///********************************MY CODE STARTS HERE********************************///
  
  
-#define mxn 100005
+const int N = 1e6 + 100;
 
-struct node
-{
-    int cnt;
-    node *next[26];
-    node()
-    {
-        cnt=0;
-        for(int i=0;i<26;i++) next[i]=NULL;
+int tot_node = 1;
+int to[N][26];
+
+int add(string &s) {
+    int cur = 1; // root node
+    for(int i = 0; i < s.size(); i++) {
+        int c = s[i]-'a';
+        if(!to[cur][c]) to[cur][c] = ++tot_node;
+        cur = to[cur][c];
     }
-};
-
-node *root;
-// node *root[mxn];
-
-void update(string str, int n)
-{
-    node *cur=root;
-    for(int i=0;i < str.size();i++)
-    {
-        int id=str[i]-'a';             // lowercase English character
-        if(cur->next[id]==NULL)
-            cur->next[id]=new node();
-        cur=cur->next[id];
-    }
-        cur->cnt+=n; // do something on End node of a string
+    return cur; // leaf node where this string ends
 }
 
-int query(string str)
-{
-    node *cur=root;
-    for(int i=0;i < str.size();i++)
-    {
-        int id=str[i]-'a';
-        if(cur->next[id]==NULL)
-            return 0;
-        cur=cur->next[id];
-    }
-    return cur->cnt;
-}
-
-
-void del(node *cur)
-{
-    for(int i=0;i<26;i++)
-    {
-        if(cur->next[i])
-            del(cur->next[i]);
-    }
-    delete(cur);
-}
-
-int main()
-{
-
-    
-    root=new node();  // root node creation
-
+int main() {
+      
 
     return 0;
 }
-
- 
