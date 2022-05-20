@@ -10,7 +10,7 @@ vector<int> tr[N];
 int tot = 1;
 
 void clr() {
-    for(int i = 0;i < N;i++) {
+    for(int i = 0;i <= tot;i++) {
         dph[i] = sl[i] = par[i] = pl[i] = 0;
         tr[i].clear();
         for(int j = 0;j < 26;j++) {
@@ -22,7 +22,7 @@ void clr() {
 int add_string(string &s) {
     int u = 1;
     for(int i = 0; i < s.size(); i++) {
-        int c = s[i]-'A';
+        int c = s[i]-'a';
         if(!to[u][c]) to[u][c] = ++tot, par[tot] = u, dph[tot] = dph[u]+1, pl[tot] = c;
         u = to[u][c];
     }
