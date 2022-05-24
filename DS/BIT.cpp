@@ -1,5 +1,6 @@
 //Tested : LightOJ 1164 - Horrible Queries
-// 1-indexed
+// 1-indexed 
+// range update range query
 
 #include<bits/stdc++.h>
 using namespace std;
