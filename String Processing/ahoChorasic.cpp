@@ -1,54 +1,98 @@
-#include <bits/stdc++.h>
-#define IOS ios_base::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL);
+#include<bits/stdc++.h>
 using namespace std;
 
-const int N = 1e6+100, ALPHA = 26;
+const int N = 1e5 + 9;
 
-int to[N][ALPHA], nxt[N][ALPHA];
-int dph[N], sl[N], par[N], pl[N];
-vector<int> tr[N];
-int tot = 1;
-
-void clr() {
-    for(int i = 0;i <= tot;i++) {
-        dph[i] = sl[i] = par[i] = pl[i] = 0;
-        tr[i].clear();
-        for(int j = 0;j < 26;j++) {
-            to[i][j] = nxt[i][j] = 0;
-        }
+//credit: Alpha_Q
+struct AC {
+  int N, P;
+  const int A = 26;
+  vector <vector <int>> next;
+  vector <int> link, out_link;
+  vector <vector <int>> out;
+  AC(): N(0), P(0) {node();}
+  int node() {
+    next.emplace_back(A, 0);
+    link.emplace_back(0);
+    out_link.emplace_back(0);
+    out.emplace_back(0);
+    return N++;
+  }
+  inline int get (char c) {
+    return c - 'a';
+  }
+  int add_pattern (const string T) {
+    int u = 0;
+    for (auto c : T) {
+      if (!next[u][get(c)]) next[u][get(c)] = node();
+      u = next[u][get(c)];
     }
-    tot = 1;
-}
-int add_string(string &s) {
-    int u = 1;
-    for(int i = 0; i < s.size(); i++) {
-        int c = s[i]-'a';
-        if(!to[u][c]) to[u][c] = ++tot, par[tot] = u, dph[tot] = dph[u]+1, pl[tot] = c;
-        u = to[u][c];
-    }
-    return u;
-}
-
-void push_links() {
-    queue<int> q; q.push(1);
-    while (!q.empty()) {
-        int u = q.front(); q.pop();
-        if(dph[u] <= 1) sl[u] = 1;
+    out[u].push_back(P);
+    return P++;
+  }
+  void compute() {
+    queue <int> q;
+    for (q.push(0); !q.empty();) {
+      int u = q.front(); q.pop();
+      for (int c = 0; c < A; ++c) {
+        int v = next[u][c];
+        if (!v) next[u][c] = next[link[u]][c];
         else {
-            int v = sl[par[u]], l = pl[u];
-            while(v > 1 && !to[v][l]) v = sl[v];
-            if(to[v][l]) v = to[v][l];
-            sl[u] = v;
+          link[v] = u ? next[link[u]][c] : 0;
+          out_link[v] = out[link[v]].empty() ? out_link[link[v]] : link[v];
+          q.push(v);
         }
-        if(u != 1) tr[sl[u]].push_back(u);
-        for(int i = 0; i < ALPHA; i++) if(to[u][i]) q.push(to[u][i]);
+      }
     }
-}
+  }
+  int advance (int u, char c) {
+    while (u && !next[u][get(c)]) u = link[u];
+    u = next[u][get(c)];
+    return u;
+  }
+};
 
-int jump(int u, int c) {
-    if(nxt[u][c]) return nxt[u][c];
-    int v = u;
-    while(v > 1 && !to[v][c]) v = sl[v];
-    if(to[v][c]) v = to[v][c];
-    return nxt[u][c] = v;
+int32_t main() {
+  ios_base::sync_with_stdio(0);
+  cin.tie(0);
+  auto st = clock();
+  int t, cs = 0; cin >> t;
+  while (t--) {
+    int n; cin >> n;
+    vector<string> v;
+    for (int i = 0; i < n; i++) {
+      string s; cin >> s;
+      v.push_back(s);
+    }
+    sort(v.begin(), v.end());
+    v.erase(unique(v.begin(), v.end()), v.end());
+    AC aho;
+    vector<int> len(n + 3, 0);
+    for (auto s: v) {
+      len[aho.add_pattern(s)] = s.size();
+    }
+    aho.compute();
+    string s; cin >> s;
+    n = s.size();
+    vector<int> dp(n, n + 10);
+    int u = 0;
+    for (int i = 0; i < n; i++) {
+      char c = s[i];
+      u = aho.advance(u, c);
+      for (int v = u; v; v = aho.out_link[v]) {
+        for (auto p : aho.out[v]) { 
+          dp[i] = min(dp[i], (i - len[p] >= 0 ? dp[i - len[p]] : 0) + 1);
+        }
+      }
+    }
+    cout << "Case " << ++cs << ": ";
+    if (dp[n - 1] == n + 10) {
+      cout << "impossible\n";
+    }
+    else {
+      cout << dp[n - 1] << '\n';
+    }
+  }
+  cout << 1.0 * (clock() - st) / 1000 << '\n';
+  return 0;
 }
